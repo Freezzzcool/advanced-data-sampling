@@ -4,7 +4,7 @@ where duration = (select max(duration) from track);
 
 --Название треков, продолжительность которых не менее 3,5 минут.
 select name_track from track
-where duration > 210;
+where duration >= 210;
 
 --Названия сборников, вышедших в период с 2018 по 2020 год включительно.
 select name_collection from collection
@@ -16,7 +16,14 @@ where name_performer not like '% %';
 
 --Название треков, которые содержат слово «мой» или «my».
 select name_track from track
-where lower(name_track) like '%my%' or lower(name_track) like '%мой%';
+where name_track ilike 'my%'
+or name_track ilike '% my %'
+or name_track ilike '%my'
+or name_track ilike 'my'
+or name_track ilike 'мой%'
+or name_track ilike '% мой %'
+or name_track ilike '%мой'
+or name_track ilike 'мой';
 
 
 --Количество исполнителей в каждом жанре.
@@ -36,9 +43,10 @@ group by album.name_album;
 
 --Все исполнители, которые не выпустили альбомы в 2020 году.
 select performer.name_performer from performer
-join performer_album pa on pa.performer_id = performer.performer_id 
-join album on pa.album_id = album.album_id 
-where extract(year from album.releace_year) != 2020;
+left join performer_album on performer.performer_id = performer_album.performer_id
+left join album on performer_album.album_id = album.album_id
+where performer.name_performer not in (select performer.name_performer
+from performer_album where releace_year >= '2020.01.01' and releace_year < '2021.01.01');
 
 --Названия сборников, в которых присутствует конкретный исполнитель (ac/dc).
 select collection.name_collection from collection
